@@ -1,0 +1,84 @@
+
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # -----------------------------------------------------------------------------
+> # Código gerado com o ASDA - Ambiente de Simulação Distribuída Automático
+> # -----------------------------------------------------------------------------
+> 
+> library(simmer)
+> 
+> set.seed(10)
+> 
+> env <- simmer("Mm1")
+> env
+simmer environment: Mm1 | now: 0 | next: 
+{ Monitor: in memory }
+> 
+> # Configurar trajetória 
+> 
+> cliente <- trajectory() %>%
++ 	seize("cpu", 1) %>%
++ 	timeout(function() rexp(1, 0.1)) %>%
++ 	release("cpu", 1) %>%
++ 	set_attribute("queue_cpu", function() get_queue_count(env, "cpu"))
+> 
+> 
+> # criando os recursos 
+> 
+> env %>%
++ add_resource("cpu", 1) %>%
++ add_generator("cliente", cliente, function() rexp(1, 1), mon=2)
+simmer environment: Mm1 | now: 0 | next: 0
+{ Monitor: in memory }
+{ Resource: cpu | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }
+{ Source: cliente | monitored: 2 | n_generated: 0 }
+> 
+> # tempo total de execução
+> env %>% 
++ 	run(2000) %>%
++  	now()
+[1] 2000
+> # dados da simulação
+> 
+> chegadas <- get_mon_arrivals(env, TRUE) 
+> recursos <- get_mon_resources(env) 
+> fila <- get_mon_attributes(env)
+> 
+> sprintf("Total de Clientes Processados = %d", nrow(get_mon_arrivals(env)))
+[1] "Total de Clientes Processados = 208"
+> sprintf("Thoughput = %f", (nrow(get_mon_arrivals(env))/2000))
+[1] "Thoughput = 0.104000"
+> 
+> sprintf("Tempo de Serviço CPU =  %f", sum(chegadas[chegadas$resource == "cpu", c("activity_time")]))
+[1] "Tempo de Serviço CPU =  1987.949013"
+> sprintf("Tempo Médio de Serviço CPU =  %f", sum(chegadas[chegadas$resource == "cpu", c("activity_time")])/nrow(chegadas[chegadas$resource == "cpu", c("resource", "name")]))
+[1] "Tempo Médio de Serviço CPU =  9.557447"
+> sprintf("Utilização CPU CPU = %f", sum(chegadas[chegadas$resource == "cpu", c("activity_time")])/2000)
+[1] "Utilização CPU CPU = 0.993975"
+> sprintf("Tempo de resposta CPU = %f", sum(chegadas[chegadas$resource == "cpu", c("end_time")])-sum(chegadas[chegadas$resource == "cpu", c("start_time")]))
+[1] "Tempo de resposta CPU = 176949.097382"
+> sprintf("Tempo Médio de resposta CPU = %f", (sum(chegadas[chegadas$resource == "cpu", c("end_time")])-sum(chegadas[chegadas$resource == "cpu", c("start_time")]))/nrow(chegadas[chegadas$resource == "cpu", c("resource", "name")]) )
+[1] "Tempo Médio de resposta CPU = 850.716814"
+> sprintf("Tempo Médio em Fila CPU = %f ", ((sum(chegadas[chegadas$resource == "cpu", c("end_time")])-sum(chegadas[chegadas$resource == "cpu", c("start_time")]))/nrow(chegadas[chegadas$resource == "cpu", c("resource", "name")]))-(sum(chegadas[chegadas$resource == "cpu", c("activity_time")])/nrow(chegadas[chegadas$resource == "cpu", c("resource", "name")])))
+[1] "Tempo Médio em Fila CPU = 841.159367 "
+> sprintf("Comprimento Médio de Fila CPU =  %f", sum(fila[fila$key == "queue_cpu",c("value")])/nrow(fila[fila$key == "queue_cpu",c("value", "key")]))
+[1] "Comprimento Médio de Fila CPU =  830.980769"
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.187   0.171   0.335 
