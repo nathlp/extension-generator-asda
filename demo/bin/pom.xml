@@ -23,9 +23,7 @@
     <dependency>
       <groupId>javasim</groupId>
       <artifactId>javasim</artifactId>
-      <version>2.1</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/javasim-2.1.jar</systemPath>
+      <version>2.0-hbraun</version>
     </dependency>
   </dependencies>
 </project>
