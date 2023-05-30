@@ -1,7 +1,7 @@
 package com.javasim.teste.basic;
 
 import java.io.IOException;
-
+import java.util.Random;
 
 import org.javasim.RestartException;
 import org.javasim.SimulationException;
@@ -14,9 +14,9 @@ public class CPU extends SimulationProcess
     private Cliente cliente;
     public double tempoDeServico = 0.0;
     
-	public CPU(double media, long m, long l)
+	public CPU(double media)
     {
-        taxa = new ExponentialStream(media, 0 , m, l);
+        taxa = new ExponentialStream(media);
         cliente = null;
     }
 
@@ -30,7 +30,7 @@ public class CPU extends SimulationProcess
 			while (!Controle.filaDoCPU.isEmpty())
 			{
 				inicioAtividade = currentTime();
-                //System.out.println("INICIO SERVICO = "+ currentTime());
+
 				Controle.filaDoCPU.checkFila++;
 				Controle.filaDoCPU.clientesEmFila += Controle.filaDoCPU.queueSize();
 				cliente = Controle.filaDoCPU.dequeue();
@@ -47,12 +47,9 @@ public class CPU extends SimulationProcess
                 }
 
                 fimAtividade = currentTime();
-               // System.out.println("FIM SERVICO = "+ currentTime());
-               // System.out.println("DISBUIÇÃO = " + serviceTime());
                 tempoDeServico += fimAtividade - inicioAtividade;
-                Controle.totalServico = tempoDeServico;
-              //  System.out.println("SERVICO = "+ tempoDeServico);
-              //  System.out.println(" valor do controle SERVICO = "+ Controle.totalServico);
+                Controle.totalServico += tempoDeServico;
+
 				Controle.clientesProcessados++;
 				cliente.finished();
 

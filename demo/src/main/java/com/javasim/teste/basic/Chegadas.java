@@ -10,11 +10,10 @@ import org.javasim.streams.ExponentialStream;
 public class Chegadas extends SimulationProcess
 {
     private ExponentialStream taxa;
-    private int i = 0;
 
-    public Chegadas(double media, long m, long l)
+    public Chegadas(double media)
     {
-        taxa = new ExponentialStream(media, 0 , m, l);
+        taxa = new ExponentialStream(media);
     }
 
     public void run ()
@@ -34,8 +33,8 @@ public class Chegadas extends SimulationProcess
             catch (IOException e)
             {
             }
-            i=i+1;
-            new Cliente(i);
+
+            new Cliente();
         }
     }
 
